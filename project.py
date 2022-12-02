@@ -31,15 +31,19 @@ import os
 # coords_gdf = gpd.GeoDataFrame(coords_gdf, crs = crs)
 # elements_gdf = gpd.GeoDataFrame(elements_gdf, crs = crs)
 
+#read shapefile
+shapefile = gpd.read_file("./Superfund_Shape.shp")
+
+#read coordiante and elements data
 hmsdata = pd.read_csv('./Heavy Metal Sheet-Final.csv')
 hmsdf = pd.DataFrame(hmsdata)
 elements = hmsdf.iloc[: , 3:12].copy()
 coord = hmsdf.iloc[: , [12,13]].copy()
 
-#read shapefile
-shapefile = gpd.read_file("shapefile.shp")
+#convert coordinates dataframe to geodataframe
+coords_gdf = gpd.GeoDataFrame(coord, geometry=geopandas.points_from_xy(df.Coordinate2, df.Coordinate1))
 
-#convert coordinates to Colorado specific projection
+#convert coordinates to a Colorado specific projection
 beehives_gdf = coords_gdf.to_crs({'init': 'epsg:26954'})
 shapefile = shapefile.to_crs({'init': 'epsg:26954'})
 
