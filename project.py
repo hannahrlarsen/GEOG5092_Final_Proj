@@ -52,7 +52,10 @@ elements = hmsdf.iloc[: , 3:12].copy()
 coord = hmsdf.iloc[: , [12,13]].copy()
 
 #convert coordinates dataframe to geodataframe
-coords_gdf = gpd.GeoDataFrame(coord, geometry=geopandas.points_from_xy(df.Coordinate2, df.Coordinate1))
+coords_gdf = gpd.GeoDataFrame(coord, geometry=gpd.points_from_xy(hmsdf.Coordinate2, hmsdf.Coordinate1))
+
+#set the initial geodataframe crs
+coords_gdf.crs = "EPSG:4326"
 
 #convert coordinates to a Colorado specific projection
 beehives_gdf = coords_gdf.to_crs({'init': 'epsg:26954'})
@@ -63,10 +66,10 @@ shapefile = shapefile.to_crs({'init': 'epsg:26954'})
 beehives_buffer = beehives_gdf.buffer(4828.03)
 
 #Superfund sites that fall within one of the beehive buffers?
-for hive in beehives_buffer:
-  hive.intersection(shapefile, align=True)
+# for hive in beehives_buffer:
+#   hive.intersection(shapefile)
   
   
-#Export files to shapefile
-beehives_gdf.to_file('beehive_locations.shp')
-beehives_buffer.to_file('beehives_buffer.shp')
+# #Export files to shapefile
+# beehives_gdf.to_file('beehive_locations.shp')
+# beehives_buffer.to_file('beehives_buffer.shp')
