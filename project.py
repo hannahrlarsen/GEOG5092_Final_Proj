@@ -60,3 +60,8 @@ beehives_buffer = beehives_gdf.buffer(4828.03)
 #Superfund sites that fall within one of the beehive buffers?
 for hive in beehives_buffer:
   hive.intersection(shapefile, align=True)
+  
+  
+#Export files to shapefile
+beehives_gdf.to_file('beehive_locations.shp')
+beehives_buffer.to_file('beehives_buffer.shp')
