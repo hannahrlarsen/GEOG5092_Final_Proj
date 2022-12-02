@@ -5,6 +5,12 @@ import geopandas as gpd
 import pandas as pd
 import os
 
+def statistics_func (file, column_number):
+  statistics for mean, median, etc.
+  
+def chloropleth_func (beehives, ....):
+  create map
+
 # path = 'C:/Users/larsenh/Downloads/'
 
 # coord_list = []
