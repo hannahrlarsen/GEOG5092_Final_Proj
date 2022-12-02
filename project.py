@@ -1,15 +1,20 @@
-#Step 1: import the data and coordinates 
-#Step 2:
+#Step 1: Import the data and coordinates 
+#Step 2: Put coordinates into a dataframe and subsequently a geodataframe
+#Step 3: Match the coordinates with the object ID (hives)
+#Step 4: Project the shapefile and coordinates
+#Step 5: Create a function to perform statistical analsysis on the elements
+#Step 6: Put buffer around the beehives
+#Step 7: Create a graduated symbols map of the point data
 
 import geopandas as gpd
 import pandas as pd
 import os
 
-def statistics_func (file, column_number):
-  statistics for mean, median, etc.
+# def statistics_func (file, column_number):
+#   statistics for mean, median, etc.
   
-def chloropleth_func (beehives, ....):
-  create map
+# def chloropleth_func (beehives, ....):
+#   create map
 
 # path = 'C:/Users/larsenh/Downloads/'
 
@@ -38,9 +43,9 @@ def chloropleth_func (beehives, ....):
 # elements_gdf = gpd.GeoDataFrame(elements_gdf, crs = crs)
 
 #read shapefile
-shapefile = gpd.read_file("./Superfund_Shape.shp")
+shapefile = gpd.read_file("./Superfund_Shape/Superfund_Shape.shp")
 
-#read coordiante and elements data
+#read coordinate and elements data
 hmsdata = pd.read_csv('./Heavy Metal Sheet-Final.csv')
 hmsdf = pd.DataFrame(hmsdata)
 elements = hmsdf.iloc[: , 3:12].copy()
