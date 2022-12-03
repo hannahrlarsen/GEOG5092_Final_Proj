@@ -8,6 +8,7 @@
 
 import geopandas as gpd
 import pandas as pd
+import fiona
 import os
 
 # def statistics_func (file, column_number):
