@@ -9,39 +9,8 @@
 import geopandas as gpd
 import pandas as pd
 import fiona
+import matplotlib.pyplot as plt
 import os
-
-# def statistics_func (file, column_number):
-#   statistics for mean, median, etc.
-  
-# def chloropleth_func (beehives, ....):
-#   create map
-
-# path = 'C:/Users/larsenh/Downloads/'
-
-# coord_list = []
-# with open(path + 'Coordinates.txt') as file:
-#     for coordinates in file:
-#         temp_list = tuple(coordinates.strip().split('\t'))
-
-# elements_list = []
-# with open(path + 'Elements.txt') as file:
-#     for ele in file:
-#         temp_list = tuple(ele.strip().split('\t'))
-
-
-# coords_df = pd.DataFrame(new_coords, columns=['Longitude', 'Latitude'])
-# coords_gdf = gpd.GeoDataFrame(coords_df, geometry = gpd.points_from_xy(coords_df.Longitude, 
-#             coords_df.Latitude))
-
-# elements_df = pd.DataFrame(new_elements, columns=['Longitude', 'Latitude'])
-# elements_gdf = gpd.GeoDataFrame(elements_df, geometry = gpd.points_from_xy(elements_df.Longitude, 
-#             elements_df.Latitude))
-
-
-# crs = {'init': 'epsg:4326'}
-# coords_gdf = gpd.GeoDataFrame(coords_gdf, crs = crs)
-# elements_gdf = gpd.GeoDataFrame(elements_gdf, crs = crs)
 
 #read shapefile
 shapefile = gpd.read_file("./Superfund_Shape/Superfund_Shape.shp")
@@ -49,28 +18,45 @@ shapefile = gpd.read_file("./Superfund_Shape/Superfund_Shape.shp")
 #read coordinate and elements data
 hmsdata = pd.read_csv('./Heavy Metal Sheet-Final.csv')
 hmsdf = pd.DataFrame(hmsdata)
-elements = hmsdf.iloc[: , 3:12].copy()
+elementsdf = hmsdf.iloc[: , 3:12].copy()
 coord = hmsdf.iloc[: , [12,13]].copy()
 
 #convert coordinates dataframe to geodataframe
 coords_gdf = gpd.GeoDataFrame(coord, geometry=gpd.points_from_xy(hmsdf.Coordinate2, hmsdf.Coordinate1))
 
+
+def elstats (df):
+  """
+  Statistics for mean, median, etc. from a pandas dataframe that contains elemental data
+  parameters:
+    df: the name of the dataframe with the data
+
+  """
+  mean = df.mean()
+  stddev = df.std()
+  max = df.max()
+  min = df.min()
+  elnames = df.columns
+  for i in range(len(elnames)):
+    print(f"{elnames[i]}: mean = {round(mean[i], 2)}, standard deviation = {round(stddev[i], 2)}, max = {round(max[i], 2)}, min = {round(min[i], 2)}")
+  
+
+
+elstats(elementsdf)
+
 #set the initial geodataframe crs
-coords_gdf.crs = "EPSG:4326"
+#WGS 84 / Pseudo-Mercator -- Spherical Mercator
+coords_gdf.crs = "EPSG:3857"
 
 #convert coordinates to a Colorado specific projection
-beehives_gdf = coords_gdf.to_crs({'init': 'epsg:26954'})
-shapefile = shapefile.to_crs({'init': 'epsg:26954'})
+shapefile = shapefile.to_crs("EPSG:3857")
 
-#buffer for 3 miles in meters (I think the buffer uses the CRS measurement for calculation, the CRS for EPSG:26954 is in meters so
-  #it wants meters for the buffer function
-beehives_buffer = beehives_gdf.buffer(4828.03)
+#buffer for 3 miles in meters
+buffer = coords_gdf.buffer(4828.03)
+buffer = gpd.GeoDataFrame(gpd.GeoSeries(buffer))
+buffer = buffer.rename(columns={0: 'geometry'})
+buffer = buffer.set_geometry('geometry')
 
-#Superfund sites that fall within one of the beehive buffers?
-# for hive in beehives_buffer:
-#   hive.intersection(shapefile)
-  
-  
-# #Export files to shapefile
-# beehives_gdf.to_file('beehive_locations.shp')
-# beehives_buffer.to_file('beehives_buffer.shp')
+intersection = gpd.overlay(buffer, shapefile, how='intersection')
+
+intersection.to_file('sf_overlap.shp')
